@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Carter+One&family=Yeseva+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <style>
+        * {
+            font-family: 'Yeseva One', cursive
+        }
+        
+        .container-fluid {
+            /* background-image: linear-gradient(-45deg, #77c7e1 0%, #b0bdec 20%, #edaae4 39%, #f7b6b3 76%, #FED2CE 100%); */
+            /* background-image: linear-gradient(135deg, #f5f7fa 0%, #94a8c8 100%); */
+            /* background-image: linear-gradient(to top, #ffeae1 0%, #8bcae7 100%); */
+            /* background-image: linear-gradient(to top, #accbee 0%, #e7f0fd 100%); */
+            /* background-image: linear-gradient(45deg, #93a5cf 0%, #e4efe9 100%); */
+            background-image: linear-gradient(to top, #f3e7e9 0%, #d6e6fd 99%, #e3eeff 100%);
+            min-height: 100vh;
+        }
+        /* login box styling */
+        
+        .box {
+            text-align: center;
+            width: 500px;
+            border: none;
+            box-sizing: border-box;
+            box-shadow: 5px 5px 20px 1px #7a6b9f;
+            border-radius: 5px;
+            /* text-align: center; */
+            margin: 40px;
+            padding: 40px;
+            background-image: linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%);
+            color: rgb(33, 35, 53)
+        }
+        /* avatar styling */
+        
+        img {
+            width: 185px;
+            height: 185px;
+            size-adjust: 50%;
+            border: none;
+            border-radius: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkbox {
+            /* float: left; */
+            text-align: left;
+            display: inline;
+        }
+        
+        a {
+            text-decoration: none;
+            color: #6027dc;
+        }
+        /* submit button styling */
+        
+        .btn {
+            background-image: linear-gradient(120deg, #e4d0f7 0%, #98c8f9 100%);
+            font-size: large;
+            /* background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+        }
+        
+        .btn:hover {
+            background-image: linear-gradient(135deg, #3758e9 0%, #8e3fdc 100%);
+            transform: scale(1.04);
+        }
+        
+        .ALTER {
+            font-size: small;
+        }
+        
+        .ALTER hr {
+            width: 99%;
+        }
+        
+        .ALTER i {
+            padding: 15px;
+            font-size: medium;
+            color: #691bce;
+            cursor: pointer;
+        }
+        
+        .ALTER i:hover {
+            transform: scale(1.1, 1.1);
+        }
+    </style>
+    <script src="https://kit.fontawesome.com/521c6f9699.js" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+    <div class=" container-fluid w-100  d-flex align-items-center justify-content-center">
+
+        <div class="cloumn box">
+            <h1> Login</h1>
+            <br>
+            <div class="avatar">
+                <img src="../static/avatar-2.jpg" alt="avatar">
+            </div>
+            <br><br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+            <form action="#" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group w-100">
+
+
+                    <p>
+                        {% if form.email.errors %}
+                        {{ form.email(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                            <span> {{ error }} </span>
+                            {% endfor %}
+    
+                        </div>
+                    {% else %}
+                    {{ form.email(class="form-control") }}
+    
+                    {% endif %} </p>
+                    <p>
+                        {% if form.password.errors %}
+                        {{ form.password(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                            <span> {{ error }} </span>
+                            {% endfor %}
+    
+                        </div>
+                    {% else %}
+                    {{ form.password(class="form-control") }}
+    
+                    {% endif %} </p>
+                    
+                        <div class="form-check d-inline-block">
+                            {{ form.remember(class="form-check-input")}}
+                            {{ form.remember.label(class="form-check-label")}}
+                        </div>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div class="forgot d-inline-block"><a href="{{ url_for('reset_request') }}">Forgot password?</a></div>
+                    <br><br>
+
+                    <input type="submit" value="Sign In" class="btn btn-default w-100">
+                    <br>
+
+                </div>
+            </form>
+            <div class="ALTER">
+                <hr>
+                <p>Or Sign-in with</p>
+                <a href="{{ url_for('google.login') }}"><i class="fa-brands fa-google" ></i></a>
+                <i class="fa-brands fa-twitter" ></i>
+                <i class="fa-brands fa-linkedin-in"></i>
+                <i class="fa-brands fa-github" ></i>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</body>
+
+</html>
