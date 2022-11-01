@@ -7,7 +7,7 @@ from PIL import Image
 from flask import render_template,redirect,url_for,flash,request,abort,session
 from flaskblog import app,db,bcrypt,blueprint,mail
 from flaskblog.forms import Registration_form,Login_form,UpdateAccountForm,PostForm,RequestResetForm,Reset_Password_Form
-from flaskblog.models import User, Post, OAuth,Oauthuser
+from flaskblog.models import User, Post, OAuth
 from flask_login import login_user, current_user,logout_user,login_required
 from flask_dance.contrib.google import google
 from flask_dance.consumer import oauth_authorized, oauth_error
@@ -258,9 +258,11 @@ def google_logged_in(blueprint, token):
     try:
         oauth = query.one()
     except NoResultFound:
+        google_user_login = str(google_info["email"])
         oauth = OAuth(
             provider=blueprint.name,
             provider_user_id=google_user_id,
+            provider_user_login=google_user_login,
             token=token,
         )
 
@@ -270,17 +272,17 @@ def google_logged_in(blueprint, token):
         # Note that if we just created this OAuth token, then it can't
         # have an associated local account yet.
         login_user(oauth.user)
-        flash("Successfully signed in with GitHub.")
+        flash("Successfully signed in with Google.",'success')
 
     else:
         # If this OAuth token doesn't have an associated local account,
         # create a new local user account for this user. We can log
         # in that account as well, while we're at it.
-        user = Oauthuser(
+        user = User(
             # Remember that `email` can be None, if the user declines
             # to publish their email address on GitHub!
             email=google_info["email"],
-            username=google_info["email"],
+            username=google_info["email"][0:4],
         )
         # Associate the new local user account with the OAuth token
         oauth.user = user
@@ -289,7 +291,7 @@ def google_logged_in(blueprint, token):
         db.session.commit()
         # Log in the new local user account
         login_user(user)
-        flash("Successfully signed in with Google.")
+        flash("Successfully signed in with Google.",'success')
 
     # Since we're manually creating the OAuth model in the database,
     # we should return False so that Flask-Dance knows that
