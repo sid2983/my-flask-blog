@@ -9,8 +9,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_ckeditor import CKEditor
-from flask_dance.contrib.google import make_google_blueprint,google
-from flask_dance.consumer.storage.sqla import OAuthConsumerMixin, SQLAlchemyStorage
+from flask_dance.contrib.google import make_google_blueprint
+from flask_dance.contrib.github import make_github_blueprint
+# from flask_dance.consumer.storage.sqla import OAuthConsumerMixin, SQLAlchemyStorage
 # from flask_caching import Cache
 from flask_mail import Mail
 
@@ -36,7 +37,12 @@ mail = Mail(app)
 
 # cache = Cache(app)
 
+#google api blueprint
 blueprint = make_google_blueprint(client_id='885804391863-epgi238upfo9unp0626o7460i661t2j4.apps.googleusercontent.com',client_secret='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',offline=True,scope=['profile','email'])
 app.register_blueprint(blueprint,url_prefix='/login/google')
+
+#github api blueprint
+github_blueprint = make_github_blueprint(client_id='dea9604a2fb65920c7cf',client_secret='a6386089fb1c63b1e430d98333992fa983ba8b19',scope=['profile','email'])
+app.register_blueprint(github_blueprint,url_prefix='/login/github')
 
 from flaskblog import routes
