@@ -368,8 +368,8 @@ def github_logged_in(github_blueprint, token):
         user = User(
             # Remember that `email` can be None, if the user declines
             # to publish their email address on GitHub!
-            email=github_info["login"],
-            username=github_info["login"][0:6]
+            email="abc@example.com",
+            username=github_info["login"]
         )
         # Associate the new local user account with the OAuth token
         oauth.user = user
