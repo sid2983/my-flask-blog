@@ -5,11 +5,11 @@ import secrets,os
 from turtle import pos, title
 from PIL import Image
 from flask import render_template,redirect,url_for,flash,request,abort,session
-from flaskblog import app,db,bcrypt,blueprint,mail
+from flaskblog import app,db,bcrypt,blueprint,mail,github_blueprint
 from flaskblog.forms import Registration_form,Login_form,UpdateAccountForm,PostForm,RequestResetForm,Reset_Password_Form
 from flaskblog.models import User, Post, OAuth
 from flask_login import login_user, current_user,logout_user,login_required
-from flask_dance.contrib.google import google
+# from flask_dance.contrib.google import google
 from flask_dance.consumer import oauth_authorized, oauth_error
 from sqlalchemy.orm.exc import NoResultFound
 from flask_mail import Message
@@ -24,6 +24,7 @@ from flask_dance.consumer.storage.sqla import SQLAlchemyStorage
 
 
 blueprint.storage = SQLAlchemyStorage(OAuth, db.session, user=current_user)
+github_blueprint.storage = SQLAlchemyStorage(OAuth, db.session, user=current_user)
 
 
 @app.route("/")
@@ -223,13 +224,13 @@ def user_posts(username):
     return render_template("user_posts.html",posts=posts,user=user)
 
 
-@app.route('/login/google')
-def google_login():
-    if not google.authorized:
-        return render_template("google.login")
-    resp = google.get('/oauth2/v2/userinfo')
-    assert resp.ok, resp.text
-    # email = resp.json()['email']
+# @app.route('/login/google')
+# def google_login():
+#     if not google.authorized:
+#         return render_template("google.login")
+#     resp = google.get('/oauth2/v2/userinfo')
+#     assert resp.ok, resp.text
+#     # email = resp.json()['email']
     
 
 
@@ -311,3 +312,86 @@ def google_error(blueprint, message, response):
 
 
 
+
+###################################
+################################
+################################
+##############################
+###############################
+##################################
+##########################################
+############
+# create/login local user on successful OAuth login
+@oauth_authorized.connect_via(github_blueprint)
+def github_logged_in(github_blueprint, token):
+    if not token:
+        flash("Failed to log in with Github", category="error")
+        return False
+
+    resp = github_blueprint.session.get("/user")
+    if not resp.ok:
+        msg = "Failed to fetch user info from Github."
+        flash(msg, category="error")
+        return False
+
+    github_info = resp.json()
+    github_user_id = str(github_info["id"])
+
+    # Find this OAuth token in the database, or create it
+    query = OAuth.query.filter_by(
+        provider=github_blueprint.name,
+        provider_user_id=github_user_id,
+    )
+    try:
+        oauth = query.one()
+    except NoResultFound:
+        github_user_login = str(github_info["login"])
+        oauth = OAuth(
+            provider=github_blueprint.name,
+            provider_user_id=github_user_id,
+            provider_user_login=github_user_login,
+            token=token,
+        )
+
+    if oauth.user:
+        # If this OAuth token already has an associated local account,
+        # log in that local user account.
+        # Note that if we just created this OAuth token, then it can't
+        # have an associated local account yet.
+        login_user(oauth.user)
+        flash("Successfully signed in with Github.",'success')
+
+    else:
+        # If this OAuth token doesn't have an associated local account,
+        # create a new local user account for this user. We can log
+        # in that account as well, while we're at it.
+        user = User(
+            # Remember that `email` can be None, if the user declines
+            # to publish their email address on GitHub!
+            email='abc@example.com',
+            username=github_user_login
+        )
+        # Associate the new local user account with the OAuth token
+        oauth.user = user
+        # Save and commit our database models
+        db.session.add_all([user, oauth])
+        db.session.commit()
+        # Log in the new local user account
+        login_user(user)
+        flash("Successfully signed in with Github.",'success')
+
+    # Since we're manually creating the OAuth model in the database,
+    # we should return False so that Flask-Dance knows that
+    # it doesn't have to do it. If we don't return False, the OAuth token
+    # could be saved twice, or Flask-Dance could throw an error when
+    # trying to incorrectly save it for us.
+    return False
+
+    
+# notify on OAuth provider error
+@oauth_error.connect_via(github_blueprint)
+def github_error(github_blueprint, message, response):
+    msg = ("OAuth error from {name}! " "message={message} response={response}").format(
+        name=github_blueprint.name, message=message, response=response
+    )
+    flash(msg, category="error")
