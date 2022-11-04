@@ -42,7 +42,7 @@ blueprint = make_google_blueprint(client_id='885804391863-epgi238upfo9unp0626o74
 app.register_blueprint(blueprint,url_prefix='/login/google')
 
 #github api blueprint
-github_blueprint = make_github_blueprint(client_id='dea9604a2fb65920c7cf',client_secret='a6386089fb1c63b1e430d98333992fa983ba8b19',scope=['profile','email'])
+github_blueprint = make_github_blueprint(client_id='dea9604a2fb65920c7cf',client_secret='a6386089fb1c63b1e430d98333992fa983ba8b19',scope=['profile','user:email'])
 app.register_blueprint(github_blueprint,url_prefix='/login/github')
 
 from flaskblog import routes
