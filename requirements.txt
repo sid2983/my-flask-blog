@@ -41,7 +41,7 @@ Pillow
 python-dateutil 
 
 
-pywin32==303
+
 
 requests 
 requests-oauthlib==1.1.0
