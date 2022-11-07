@@ -48,7 +48,7 @@ requests-oauthlib==1.1.0
 
 
 SQLAlchemy==1.4.41
-SQLAlchemy-Utils==0.38.3
+
 
 
 Werkzeug 
