@@ -21,7 +21,7 @@ Flask-OAuth==0.12
 Flask-OAuthlib==0.9.6
 Flask-SQLAlchemy==3.0.0
 Flask-WTF==1.0.1
-tkinter
+
 gunicorn==20.1.0
 
 ImageHash 
