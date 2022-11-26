@@ -119,6 +119,7 @@ body {
     width:100%;
     display: inline-flex;
   }
+
   @media (max-width:400px)  { .content-section{
     display: inline-block;
     font-size: small;
